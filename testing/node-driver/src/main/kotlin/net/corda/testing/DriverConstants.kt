@@ -6,7 +6,7 @@ import net.corda.core.identity.Party
 import net.corda.core.internal.concurrent.transpose
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.nodeapi.User
-import net.corda.testing.driver.DriverDSLExposedInterface
+import net.corda.testing.driver.DriverDSL
 
 //
 // Extensions to the Driver DSL to auto-manufacture nodes by name.
@@ -17,7 +17,7 @@ import net.corda.testing.driver.DriverDSLExposedInterface
  * node construction won't start until you access the members. You can get one of these from the
  * [alice], [bob] and [aliceAndBob] functions.
  */
-class PredefinedTestNode internal constructor(party: Party, driver: DriverDSLExposedInterface) {
+class PredefinedTestNode internal constructor(party: Party, driver: DriverDSL) {
     val rpcUsers = listOf(User("admin", "admin", setOf("ALL")))  // TODO: Randomize?
     val nodeFuture by lazy { driver.startNode(providedName = party.name, rpcUsers = rpcUsers) }
     val node by lazy { nodeFuture.get()!! }
@@ -32,19 +32,19 @@ class PredefinedTestNode internal constructor(party: Party, driver: DriverDSLExp
  * Returns a plain, entirely stock node pre-configured with the [ALICE] identity. Note that a random key will be generated
  * for it: you won't have [ALICE_KEY].
  */
-fun DriverDSLExposedInterface.alice(): PredefinedTestNode = PredefinedTestNode(ALICE, this)
+fun DriverDSL.alice(): PredefinedTestNode = PredefinedTestNode(ALICE, this)
 
 /**
  * Returns a plain, entirely stock node pre-configured with the [BOB] identity. Note that a random key will be generated
  * for it: you won't have [BOB_KEY].
  */
-fun DriverDSLExposedInterface.bob(): PredefinedTestNode = PredefinedTestNode(BOB, this)
+fun DriverDSL.bob(): PredefinedTestNode = PredefinedTestNode(BOB, this)
 
 /**
  * Returns plain, entirely stock nodes pre-configured with the [ALICE] and [BOB] X.500 names in that order. They have been
  * started up in parallel and are now ready to use.
  */
-fun DriverDSLExposedInterface.aliceAndBob(): List<PredefinedTestNode> {
+fun DriverDSL.aliceAndBob(): List<PredefinedTestNode> {
     val alice = alice()
     val bob = bob()
     listOf(alice.nodeFuture, bob.nodeFuture).transpose().get()

@@ -11,7 +11,7 @@ import net.corda.core.serialization.serialize
 import net.corda.core.utilities.*
 import net.corda.node.services.messaging.RPCServerConfiguration
 import net.corda.nodeapi.RPCApi
-import net.corda.testing.driver.poll
+import net.corda.testing.internal.poll
 import net.corda.testing.internal.*
 import org.apache.activemq.artemis.api.core.SimpleString
 import org.junit.Assert.assertEquals

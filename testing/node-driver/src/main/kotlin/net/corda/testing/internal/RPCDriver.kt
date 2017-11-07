@@ -50,7 +50,7 @@ import java.nio.file.Paths
 import java.util.*
 import javax.security.cert.X509Certificate
 
-interface RPCDriverExposedDSLInterface : DriverDSLExposedInterface {
+interface RPCDriverExposedDSLInterface : DriverDSL {
     /**
      * Starts an In-VM RPC server. Note that only a single one may be started.
      *
@@ -201,7 +201,7 @@ inline fun <reified I : RPCOps> RPCDriverExposedDSLInterface.startRpcClient(
         configuration: RPCClientConfiguration = RPCClientConfiguration.default
 ) = startRpcClient(I::class.java, rpcAddress, username, password, configuration)
 
-interface RPCDriverInternalDSLInterface : DriverDSLInternalInterface, RPCDriverExposedDSLInterface
+interface RPCDriverInternalDSLInterface : InternalDriverDSL, RPCDriverExposedDSLInterface
 
 data class RpcBrokerHandle(
         val hostAndPort: NetworkHostAndPort?,
@@ -235,7 +235,7 @@ fun <A> rpcDriver(
         dsl: RPCDriverExposedDSLInterface.() -> A
 ) = genericDriver(
         driverDsl = RPCDriverDSL(
-                DriverDSL(
+                DriverDSLImpl(
                         portAllocation = portAllocation,
                         debugPortAllocation = debugPortAllocation,
                         systemProperties = systemProperties,
@@ -272,9 +272,7 @@ private class SingleUserSecurityManager(val rpcUser: User) : ActiveMQSecurityMan
     }
 }
 
-data class RPCDriverDSL(
-        val driverDSL: DriverDSL
-) : DriverDSLInternalInterface by driverDSL, RPCDriverInternalDSLInterface {
+data class RPCDriverDSL(val driverDSL: DriverDSLImpl) : InternalDriverDSL by driverDSL, RPCDriverInternalDSLInterface {
     private companion object {
         val notificationAddress = "notifications"
 

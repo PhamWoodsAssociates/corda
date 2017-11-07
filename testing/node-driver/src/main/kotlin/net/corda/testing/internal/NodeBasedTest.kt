@@ -18,7 +18,6 @@ import net.corda.nodeapi.User
 import net.corda.testing.SerializationEnvironmentRule
 import net.corda.testing.common.internal.NetworkParametersCopier
 import net.corda.testing.common.internal.testNetworkParameters
-import net.corda.testing.driver.addressMustNotBeBoundFuture
 import net.corda.testing.getFreeLocalPorts
 import net.corda.testing.node.MockServices
 import org.apache.logging.log4j.Level

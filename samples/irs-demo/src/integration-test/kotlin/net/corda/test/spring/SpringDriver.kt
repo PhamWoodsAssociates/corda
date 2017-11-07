@@ -6,7 +6,7 @@ import net.corda.core.internal.concurrent.fork
 import net.corda.core.internal.concurrent.map
 import net.corda.core.utilities.loggerFor
 import net.corda.testing.driver.*
-import net.corda.testing.internal.ProcessUtilities
+import net.corda.testing.internal.*
 import net.corda.testing.node.NotarySpec
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,7 +17,7 @@ import java.nio.file.Paths
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
-interface SpringDriverExposedDSLInterface : DriverDSLExposedInterface {
+interface SpringDriverExposedDSLInterface : DriverDSL {
 
     /**
      * Starts a Spring Boot application, passes the RPC connection data as parameters the process.
@@ -31,7 +31,7 @@ interface SpringDriverExposedDSLInterface : DriverDSLExposedInterface {
     fun startSpringBootWebapp(clazz: Class<*>, handle: NodeHandle, checkUrl: String): CordaFuture<WebserverHandle>
 }
 
-interface SpringDriverInternalDSLInterface : DriverDSLInternalInterface, SpringDriverExposedDSLInterface
+interface SpringDriverInternalDSLInterface : InternalDriverDSL, SpringDriverExposedDSLInterface
 
 fun <A> springDriver(
         defaultParameters: DriverParameters = DriverParameters(),
@@ -58,15 +58,15 @@ fun <A> springDriver(
         startNodesInProcess = startNodesInProcess,
         extraCordappPackagesToScan = extraCordappPackagesToScan,
         notarySpecs = notarySpecs,
-        driverDslWrapper = { driverDSL:DriverDSL -> SpringBootDriverDSL(driverDSL) },
-        coerce = { it }, dsl = dsl
+        driverDslWrapper = { driverDSL: DriverDSLImpl -> SpringBootDriverDSL(driverDSL) },
+        coerce = { it },
+        dsl = dsl
 )
 
-data class SpringBootDriverDSL(
-        val driverDSL: DriverDSL
-) : DriverDSLInternalInterface by driverDSL, SpringDriverInternalDSLInterface {
-
-    val log = loggerFor<SpringBootDriverDSL>()
+data class SpringBootDriverDSL(private val driverDSL: DriverDSLImpl) : InternalDriverDSL by driverDSL, SpringDriverInternalDSLInterface {
+    companion object {
+        private val log = loggerFor<SpringBootDriverDSL>()
+    }
 
     override fun startSpringBootWebapp(clazz: Class<*>, handle: NodeHandle, checkUrl: String): CordaFuture<WebserverHandle> {
         val debugPort = if (driverDSL.isDebug) driverDSL.debugPortAllocation.nextPort() else null

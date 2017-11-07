@@ -19,7 +19,7 @@ import net.corda.nodeapi.VerifierApi
 import net.corda.nodeapi.config.NodeSSLConfiguration
 import net.corda.nodeapi.config.SSLConfiguration
 import net.corda.testing.driver.*
-import net.corda.testing.internal.ProcessUtilities
+import net.corda.testing.internal.*
 import net.corda.testing.node.NotarySpec
 import org.apache.activemq.artemis.api.core.SimpleString
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * This file defines an extension to [DriverDSL] that allows starting of verifier processes and
  * lightweight verification requestors.
  */
-interface VerifierExposedDSLInterface : DriverDSLExposedInterface {
+interface VerifierExposedDSLInterface : DriverDSL {
     /** Starts a lightweight verification requestor that implements the Node's Verifier API */
     fun startVerificationRequestor(name: CordaX500Name): CordaFuture<VerificationRequestorHandle>
 
@@ -65,7 +65,7 @@ fun VerifierExposedDSLInterface.startVerifier(nodeHandle: NodeHandle) =
 fun VerifierExposedDSLInterface.startVerifier(verificationRequestorHandle: VerificationRequestorHandle) =
         startVerifier(verificationRequestorHandle.p2pAddress)
 
-interface VerifierInternalDSLInterface : DriverDSLInternalInterface, VerifierExposedDSLInterface
+interface VerifierInternalDSLInterface : InternalDriverDSL, VerifierExposedDSLInterface
 
 /**
  * Behaves the same as [driver] and adds verifier-related functionality.
@@ -83,7 +83,7 @@ fun <A> verifierDriver(
         dsl: VerifierExposedDSLInterface.() -> A
 ) = genericDriver(
         driverDsl = VerifierDriverDSL(
-                DriverDSL(
+                DriverDSLImpl(
                         portAllocation = portAllocation,
                         debugPortAllocation = debugPortAllocation,
                         systemProperties = systemProperties,
@@ -136,10 +136,8 @@ data class VerificationRequestorHandle(
 }
 
 
-data class VerifierDriverDSL(
-        val driverDSL: DriverDSL
-) : DriverDSLInternalInterface by driverDSL, VerifierInternalDSLInterface {
-    val verifierCount = AtomicInteger(0)
+data class VerifierDriverDSL(private val driverDSL: DriverDSLImpl) : InternalDriverDSL by driverDSL, VerifierInternalDSLInterface {
+    private val verifierCount = AtomicInteger(0)
 
     companion object {
         private val log = loggerFor<VerifierDriverDSL>()
