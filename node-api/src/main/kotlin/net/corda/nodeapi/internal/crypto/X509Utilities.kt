@@ -5,7 +5,6 @@ import net.corda.core.crypto.SignatureScheme
 import net.corda.core.crypto.random63BitValue
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.internal.read
-import net.corda.core.internal.write
 import net.corda.core.internal.x500Name
 import net.corda.core.utilities.days
 import net.corda.core.utilities.millis
@@ -27,10 +26,8 @@ import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder
 import org.bouncycastle.pkcs.PKCS10CertificationRequest
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 import org.bouncycastle.util.io.pem.PemReader
-import java.io.FileWriter
 import java.io.InputStream
 import java.math.BigInteger
-import java.nio.file.Files
 import java.nio.file.Path
 import java.security.KeyPair
 import java.security.PublicKey
@@ -50,8 +47,6 @@ object X509Utilities {
     const val CORDA_INTERMEDIATE_CA = "cordaintermediateca"
     const val CORDA_CLIENT_TLS = "cordaclienttls"
     const val CORDA_CLIENT_CA = "cordaclientca"
-
-    const val CORDA_CLIENT_CA_CN = "Corda Client CA Certificate"
 
     private val DEFAULT_VALIDITY_WINDOW = Pair(0.millis, 3650.days)
 
